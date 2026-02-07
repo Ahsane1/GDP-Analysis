@@ -1,22 +1,27 @@
 def clean_data(df):
-   
-    #Cleans GDP data , removes missing values, converting year to int and value to float 
+    # Removing missing values
+    df = df.dropna(subset=["Value"])
 
-    df = df.dropna(subset=["Value"]) # removing null value rows
+    # Convert Year into int
+    df["Year"] = df["Year"].map(lambda y: int(str(y).strip()))
 
-    df["Year"] = df["Year"].map(lambda y: int(y)) # year to integer
-    df["Value"] = df["Value"].map(lambda v: float(v)) # value to float 
+    # Convert Value into float
+    df["Value"] = df["Value"].map(lambda v: float(v))
+
+    # Striping spaces from Region
+    df["Region"] = df["Region"].map(lambda r: str(r).strip())
 
     return df
 
+
 def filter_data(df, config):
 
+    config["year"] = int(config["year"])
     region = config.get("region")
-    year = config.get("year")
 
     filtered_df = df[
-        (df["Region"] == region) &
-        (df["Year"] == year)
+    ((df["Region"].map(lambda r: r.lower())) == region.lower()) &
+    ((df["Year"]) == config["year"])
     ]
 
     return filtered_df
