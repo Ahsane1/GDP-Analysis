@@ -63,9 +63,5 @@ def load_gdp_data(file_path= DEFAULT_DATA_PATH):
     return df_long
 
 
-config = load_config()
-df = load_gdp_data()
-print(config)
-print(df.head())
 
 

@@ -13,26 +13,21 @@ def filter_data(df, config):
 
     region = config.get("region")
     year = config.get("year")
-    country = config.get("country")
 
-    return df[
-        ((df["Region"] == region) & (df["Year"] == year)) |
-        (df["Country Name"] == country)
+    filtered_df = df[
+        (df["Region"] == region) &
+        (df["Year"] == year)
     ]
 
+    return filtered_df
 
 def compute_statistics(df, config):
-    """
-    Computes statistics based on config:
-    - average
-    - sum
-    """
 
-    operation = config.get("operation")
+    operation = config.get("operation").lower()
 
     if operation == "average":
         return df["Value"].mean()
     elif operation == "sum":
         return df["Value"].sum()
     else:
-        raise ValueError("Invalid operation in config")
+        raise ValueError(f"Invalid operation: {operation}")
