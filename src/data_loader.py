@@ -1,11 +1,31 @@
 import pandas as pd
 import os
+import json
 
 BASE_COLUMNS = {"Country Name", "Continent"}
 current_dir = os.path.dirname(os.path.abspath(__file__))
-
+REQUIRED_CONFIG_FIELDS = {"region", "year", "operation", "output"}
 DEFAULT_CONFIG_PATH = os.path.join(current_dir, "../config/config.json")
 DEFAULT_DATA_PATH = os.path.join(current_dir, "../data/gdp_data.csv")
+
+
+def load_config(config_path = DEFAULT_CONFIG_PATH):
+
+    # checking if file exists
+    if not os.path.exists(config_path):
+        raise FileNotFoundError(f"Config file not found: {config_path}")
+
+    try:
+        with open(config_path, "r") as f:
+            config = json.load(f)
+    except Exception as e:
+        raise ValueError(f"Invalid JSON format: {e}")
+
+    missing = REQUIRED_CONFIG_FIELDS - set(config.keys())
+    if missing:
+        raise ValueError(f"Missing config fields: {missing}")
+
+    return config
 
 def load_gdp_data(file_path= DEFAULT_DATA_PATH):
 
@@ -41,6 +61,11 @@ def load_gdp_data(file_path= DEFAULT_DATA_PATH):
     )
 
     return df_long
-data = load_gdp_data()
-print(data.head())
-print(data.columns)
+
+
+config = load_config()
+df = load_gdp_data()
+print(config)
+print(df.head())
+
+
