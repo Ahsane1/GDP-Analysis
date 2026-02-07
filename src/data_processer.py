@@ -20,6 +20,28 @@ def filter_data(df, config):
         (df["Country Name"] == country)
     ]
 
+def filter_by_year(df,year):
+    return list(filter(lambda x: x["Year"] == year, df))
+
+def filter_by_region(df, region):
+    return list(filter(lambda x: x["Region"] == region, df))
+def filter_by_country(df, country):
+    return list(filter(lambda x: x["Country Name"] == country, df))
+
+
+def sum_gdp_of_region(df, region):
+    filtered = filter_by_region(df, region)
+    return sum(x["Values"] for x in filtered)
+
+def sum_gdp_of_country(df, country):
+    filtered = filter_by_country(df, country)
+    return sum(x["Values"] for x in filtered)
+
+def avg_gdp_of_country(df, country):
+    filtered = filter_by_country(df, country)
+    total = sum_gdp_of_country(df, country)
+    return total / len(filtered) if filtered else 0 
+
 
 def compute_statistics(df, config):
     """
