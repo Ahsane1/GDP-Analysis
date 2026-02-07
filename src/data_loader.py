@@ -62,6 +62,3 @@ def load_gdp_data(file_path= DEFAULT_DATA_PATH):
 
     return df_long
 
-
-
-
