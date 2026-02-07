@@ -66,6 +66,6 @@ def load_gdp_data(file_path= DEFAULT_DATA_PATH):
 config = load_config()
 df = load_gdp_data()
 print(config)
-print(df.head())
+print(df)
 
 
