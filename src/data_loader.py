@@ -1,47 +1,46 @@
-import json
-import csv
+import pandas as pd
 import os
 
-
+BASE_COLUMNS = {"Country Name", "Continent"}
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
 DEFAULT_CONFIG_PATH = os.path.join(current_dir, "../config/config.json")
 DEFAULT_DATA_PATH = os.path.join(current_dir, "../data/gdp_data.csv")
 
-def load_config(config_path=None):
-    
-    if config_path is None:
-        config_path = DEFAULT_CONFIG_PATH
+def load_gdp_data(file_path= DEFAULT_DATA_PATH):
 
+    #  Check if file exists 
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"CSV file not found: {file_path}")
+
+    #  loading data from csv into pandas data frame 
     try:
-        with open(config_path, "r") as f:
-            return json.load(f)
-    except FileNotFoundError:
-        print(f"Error: Config file not found at: {config_path}")
-        return None
+        df = pd.read_csv(file_path)
+    except Exception as e:
+        raise ValueError(f"Error reading CSV file: {e}")
 
-def load_gdp_data(csv_path=None):
-    
-    if csv_path is None:
-        csv_path = DEFAULT_DATA_PATH
+    #  validating the base columns
+    missing_cols = BASE_COLUMNS - set(df.columns)
+    if missing_cols:
+        raise ValueError(f"Missing required columns: {missing_cols}")
 
-    # Check if file exists
-    if not os.path.exists(csv_path):
-        print(f"Error: CSV file not found at: {csv_path}")
-        return []
+    #  renaming continent to region 
+    df = df.rename(columns={"Continent": "Region"})
 
-    with open(csv_path, mode="r", encoding='latin1') as f:
-        reader = csv.DictReader(f)
-        return list(reader)
+    # making sure there exist year columns
+    year_columns = list(filter(lambda c: c.isdigit(), df.columns))
+    if not year_columns:
+        raise ValueError("No year columns found in dataset")
 
-#testing
-if __name__ == "__main__":
-    print(f"Script is running from: {current_dir}")
-    print(f"Looking for config at: {DEFAULT_CONFIG_PATH}")
-    print(f"Looking for data at:   {DEFAULT_DATA_PATH}")
-    
-    configg = load_config()
-    print(configg)
-    data = load_gdp_data()
-    print(f"Rows loaded: {len(data)}")
-    print(data[0])
+    # conversion wide format to long format
+    df_long = df.melt(
+        id_vars=["Country Name", "Region"],
+        value_vars=year_columns,
+        var_name="Year",
+        value_name="Value"
+    )
+
+    return df_long
+data = load_gdp_data()
+print(data.head())
+print(data.columns)
