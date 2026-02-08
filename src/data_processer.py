@@ -3,13 +3,19 @@ def clean_data(df):
     # Removing missing values
     df = df.dropna(subset=["Value"])
 
-    # Convert Year into int
-    df["Year"] = df["Year"].map(lambda y: int(str(y).strip()))
+    # year into int and type checking
+    try:
+        df["Year"] = df["Year"].map(lambda y: int(str(y).strip()))
+    except Exception as e:
+        raise ValueError(f"Invalid Year values found: {e}")
 
-    # Convert Value into float
-    df["Value"] = df["Value"].map(lambda v: float(v))
+    # value to float
+    try:
+        df["Value"] = df["Value"].map(lambda v: float(v))
+    except Exception as e:
+        raise ValueError(f"Invalid GDP values found: {e}")
 
-    # Striping spaces from Region
+    # region into string and stripping
     df["Region"] = df["Region"].map(lambda r: str(r).strip())
 
     return df
