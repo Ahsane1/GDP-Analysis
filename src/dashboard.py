@@ -8,7 +8,7 @@ import webbrowser
 
 
 def run_dashboard():
-    # ------------------ LOAD CONFIG & DATA ------------------
+    # data loading and processing
     config = load_config()
     df = load_gdp_data()
     df = clean_data(df)
@@ -18,16 +18,16 @@ def run_dashboard():
     country = config.get("country")
     year = config["year"]
 
-    # ------------------ KPI VALUES ------------------
+    # for KPI 
     avg_region = sum_avg_gdp_of_region(df_list, region, "average") / 1e9
     sum_region = sum_avg_gdp_of_region(df_list, region, "sum") / 1e9
     avg_country = avg_gdp_of_country(df_list, country) / 1e9
 
-    # ------------------ FIGURE ------------------
+    
     fig = go.Figure()
 
 
-    #--------------- KPI BOX STYLE ------------------
+    #KPI design 
     KPI_BOX = dict(
         type="rect",
         xref="paper",
@@ -37,7 +37,7 @@ def run_dashboard():
         layer="below"
     )
 
-    # ------------------ KPI 1 : AVG REGION ------------------
+    # KPI 1 
     fig.add_shape(**KPI_BOX, x0=0.00, x1=0.30, y0=0.8, y1=0.9)
     fig.add_trace(go.Indicator(
         mode="number",
@@ -48,8 +48,7 @@ def run_dashboard():
                 font=dict(size=18, color="white")),
         domain=dict(x=[0.00, 0.30], y=[0.8, 0.900])
     ))
-
-    # ------------------ KPI 2 : SUM REGION ------------------
+    #KPI 2 
     fig.add_shape(**KPI_BOX, x0=0.35, x1=0.65, y0=0.8, y1=0.9)
     fig.add_trace(go.Indicator(
         mode="number",
@@ -61,7 +60,7 @@ def run_dashboard():
         domain=dict(x=[0.35, 0.65], y=[0.8, 0.900])
     ))
 
-    # ------------------ KPI 3 : AVG COUNTRY ------------------
+    #  KPI 3 : AVG COUNTRY 
     fig.add_shape(**KPI_BOX, x0=0.70, x1=1.00, y0=0.8, y1=0.9)
     fig.add_trace(go.Indicator(
         mode="number",
@@ -72,7 +71,7 @@ def run_dashboard():
                 font=dict(size=18, color="white")),
         domain=dict(x=[0.70, 1.00],y=[0.8, 0.900])
     ))
-    # ---------------------Head Title----------------------
+    # Head Title
     fig.add_annotation(
         text=f"<span style='letter-spacing:2px;'><b>COMPREHENSIVE GDP ANALYSIS</b></span><br>"
             f"<span style='font-size:16px; color:#BBBBBB;'>"
@@ -89,14 +88,14 @@ def run_dashboard():
         )
     )
 
-    # ------------------ LINE CHART (full width) ------------------
+    # LINE CHART 
     country_filtered = filter_by_country(df_list, country)
     country_filtered.sort(key=lambda x: x["Year"])
     line_years = [x["Year"] for x in country_filtered]
     line_values = [x["Value"] / 1e9 for x in country_filtered]
 
 
-    # -------- LINE CHART TITLE --------
+    # LINE TITLE
     fig.add_annotation(
         text=f"GDP Progress of {country} Over Years",
         x=0.5,
@@ -111,7 +110,7 @@ def run_dashboard():
         ),
         align="center",
 
-        # visual polish
+    
         bgcolor="rgba(0,0,0,0.45)",
         bordercolor="white",
         borderwidth=1,
@@ -119,7 +118,7 @@ def run_dashboard():
         opacity=0.95
     )
 
-    # -------- LINE CHART --------
+    # LINE PLOT
     fig.add_trace(go.Scatter(
         x=line_years,
         y=line_values,
@@ -143,7 +142,7 @@ def run_dashboard():
         showlegend=False
     ))
 
-    # -------- AXES & POSITIONING --------
+    
     fig.update_layout(
         xaxis=dict(
             domain=[0.05, 0.95],
@@ -168,14 +167,14 @@ def run_dashboard():
         )
     )
 
-    # -------- LINK TRACE TO AXES --------
+
     fig.update_traces(
         selector=dict(type='scatter'),
         xaxis="x",
         yaxis="y"
     )
 
-    # ------------------ PIE CHART (bottom-left) ------------------
+    #  PIE CHART 
     year_filtered = filter_by_year(df_list, year)
     region_filtered = filter_by_region(year_filtered, region)
     pie_countries = [x["Country Name"] for x in region_filtered]
@@ -195,7 +194,6 @@ def run_dashboard():
         ),
         align="center",
 
-        # makes heading readable
         bgcolor="rgba(0,0,0,0.4)",
         bordercolor="white",
         borderwidth=1,
@@ -207,7 +205,7 @@ def run_dashboard():
         labels=pie_countries,
         values=pie_values,
 
-        # text control
+        
         textinfo="percent",
         textposition="inside",
         textfont=dict(size=11, color="white"),
@@ -233,10 +231,10 @@ def run_dashboard():
     ))
 
 
-    # ------------------ BAR CHART (bottom-right) ------------------
+    # BAR CHART
     bar_countries = pie_countries
     bar_values = pie_values
-    # -------- BAR CHART TITLE --------
+    # BAR CHART TITLE
     fig.add_annotation(
         text=f"GDP by Country in {region} ({year})",
         x=0.85,
@@ -259,7 +257,7 @@ def run_dashboard():
         opacity=0.95
     )
 
-    # -------- BAR CHART --------
+    
     fig.add_trace(go.Bar(
         x=bar_countries,
         y=bar_values,
@@ -277,7 +275,7 @@ def run_dashboard():
         showlegend=False
     ))
 
-    # -------- AXES & POSITIONING --------
+ 
     fig.update_layout(
         xaxis2=dict(
             domain=[0.55, 0.95],
@@ -304,14 +302,14 @@ def run_dashboard():
         bargap=0.25   # space between bars
     )
 
-    # -------- LINK TRACE TO AXES --------
+   
     fig.update_traces(
         selector=dict(type='bar'),
         xaxis="x2",
         yaxis="y2"
     )
 
-    # ------------------ DONUT CHART ------------------
+    # DONUT CHART 
     
 
     # Filter data by selected year
@@ -349,9 +347,6 @@ def run_dashboard():
         borderwidth=1,
         borderpad=6,
 
-        # rotation (optional)
-        textangle=0,
-
         # opacity
         opacity=0.9
     )
@@ -362,15 +357,15 @@ def run_dashboard():
         labels=regions,
         values=region_values,
 
-        hole=0.4,        # donut size (0.3–0.6 is sweet spot)
+        hole=0.4,        
 
-        # text control
+      
         textinfo="percent",
         textposition="inside",
         textfont=dict(size=12, color="white"),
 
         # slice styling
-        pull=[0.05]*len(regions),   # small pop-out effect
+        pull=[0.05]*len(regions), 
         marker=dict(
             line=dict(color="white", width=1)
         ),
@@ -393,12 +388,11 @@ def run_dashboard():
 
 
 
-    # ------------------ FINAL LAYOUT ------------------
+    # FINAL LAYOUT
     fig.update_layout(height=2000, width=1600, margin=dict(t=100, b=50, l=50, r=50), template="plotly_dark")
+    #RUNNER
     fig.write_html("dashboard.html")
     webbrowser.open("dashboard.html")
 
 
-# ------------------ SAVE & OPEN ------------------
-# fig.write_html("dashboard.html")
-# webbrowser.open("dashboard.html")
+
