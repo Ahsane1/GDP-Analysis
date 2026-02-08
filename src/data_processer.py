@@ -1,13 +1,61 @@
+#cleans data 
 def clean_data(df):
-   
-    #Cleans GDP data , removes missing values, converting year to int and value to float 
+    # Removing missing values
+    df = df.dropna(subset=["Value"])
 
-    df = df.dropna(subset=["Value"]) # removing null value rows
+    # year into int and type checking
+    try:
+        df["Year"] = df["Year"].map(lambda y: int(str(y).strip()))
+    except Exception as e:
+        raise ValueError(f"Invalid Year values found: {e}")
 
-    df["Year"] = df["Year"].map(lambda y: int(y)) # year to integer
-    df["Value"] = df["Value"].map(lambda v: float(v)) # value to float 
+    # value to float
+    try:
+        df["Value"] = df["Value"].map(lambda v: float(v))
+    except Exception as e:
+        raise ValueError(f"Invalid GDP values found: {e}")
+
+    # region into string and stripping
+    df["Region"] = df["Region"].map(lambda r: str(r).strip())
 
     return df
+
+#cleans config.json
+def clean_config(config):
+
+    region = config.get("region")
+
+    if not region:
+        raise ValueError("Config must include 'region'")
+
+    if isinstance(region, str):
+        regions = [region]
+    else:
+        raise ValueError("'region' must be a string ")
+
+    
+    try:
+        year = int(config.get("year"))
+    except Exception:
+        raise ValueError("'year' must be a valid integer")
+
+    
+    operation = config.get("operation", "").lower()
+    if operation not in {"average", "sum"}:
+        raise ValueError("Operation must be 'average' or 'sum'")
+
+    
+    output = config.get("output", "dashboard").lower()
+
+    return {
+        "regions": regions,
+        "year": year,
+        "operation": operation,
+        "output": output
+    }
+
+
+
 
 def filter_data(df, config):
 
