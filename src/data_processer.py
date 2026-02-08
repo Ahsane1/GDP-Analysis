@@ -29,9 +29,18 @@ def filter_by_country(df, country):
     return list(filter(lambda x: x["Country Name"] == country, df))
 
 
-def sum_gdp_of_region(df, region):
+def sum_avg_gdp_of_region(df, region): #taking the sum of average GDP of countries in the region.
+   
     filtered = filter_by_region(df, region)
-    return sum(x["Values"] for x in filtered)
+    countries = set(x["Country Name"] for x in filtered)
+    avg_list = list(map(lambda c: avg_gdp_of_country(df, c), countries))
+    return sum(avg_list)
+
+# it might have issue check later.
+def avg_gdp_of_region(df, region): 
+    filtered = filter_by_region(df, region)
+    total = sum_avg_gdp_of_region(df, region)
+    return total / len(filtered) if filtered else 0  #error handling for division by zero
 
 def sum_gdp_of_country(df, country):
     filtered = filter_by_country(df, country)
@@ -40,21 +49,46 @@ def sum_gdp_of_country(df, country):
 def avg_gdp_of_country(df, country):
     filtered = filter_by_country(df, country)
     total = sum_gdp_of_country(df, country)
-    return total / len(filtered) if filtered else 0 
+    return total / len(filtered) if filtered else 0  #error handling for division by zero
 
-
-def compute_statistics(df, config):
+def filter_data_by_config(df_list, config):
     """
-    Computes statistics based on config:
-    - average
-    - sum
+    Filters list of dicts based on config:
+    - region
+    - year
+    - optional country
+    Returns filtered list
     """
+    filtered = df_list
+    if "region" in config:
+        filtered = filter_by_region(filtered, config["region"])
+    if "year" in config:
+        filtered = filter_by_year(filtered, config["year"])
+    if "country" in config and config["country"]:
+        filtered = filter_by_country(filtered, config["country"])
+    return filtered
 
+
+
+def compute_statistics(df_list, config):
+    """
+    Compute GDP statistics based on config
+    - operation: 'sum' or 'average'
+    - target: region or country
+    """
     operation = config.get("operation")
+    region = config.get("region")
+    country = config.get("country", None)
 
-    if operation == "average":
-        return df["Value"].mean()
-    elif operation == "sum":
-        return df["Value"].sum()
+    if country:  # prioritize country if given
+        if operation == "sum":
+            return sum_gdp_of_country(df_list, country)
+        elif operation == "average":
+            return avg_gdp_of_country(df_list, country)
     else:
-        raise ValueError("Invalid operation in config")
+        if operation == "sum":
+            return sum_gdp_of_region(df_list, region)
+        elif operation == "average":
+            return avg_gdp_of_region(df_list, region)
+
+    return 0  
