@@ -29,22 +29,26 @@ def filter_by_country(df, country):
     return list(filter(lambda x: x["Country Name"] == country, df))
 
 
-def sum_avg_gdp_of_region(df, region): #taking the sum of average GDP of countries in the region.
-   
+
+def sum_avg_gdp_of_region(df, region, op):
     filtered = filter_by_region(df, region)
     countries = set(x["Country Name"] for x in filtered)
     avg_list = list(map(lambda c: avg_gdp_of_country(df, c), countries))
-    return sum(avg_list)
+    if op == "sum":
+        return sum(avg_list)
+    elif op == "average":
+        return sum(avg_list) / len(avg_list) if avg_list else 0
+    return -1
 
 # it might have issue check later.
-def avg_gdp_of_region(df, region): 
-    filtered = filter_by_region(df, region)
-    total = sum_avg_gdp_of_region(df, region)
-    return total / len(filtered) if filtered else 0  #error handling for division by zero
+# def avg_gdp_of_region(df, region): 
+#     filtered = filter_by_region(df, region)
+#     total = sum_avg_gdp_of_region(df, region, "sum")
+#     return total / len(filtered) if filtered else 0  #error handling for division by zero
 
 def sum_gdp_of_country(df, country):
     filtered = filter_by_country(df, country)
-    return sum(x["Values"] for x in filtered)
+    return sum(x["Value"] for x in filtered)
 
 def avg_gdp_of_country(df, country):
     filtered = filter_by_country(df, country)
@@ -92,3 +96,33 @@ def compute_statistics(df_list, config):
             return avg_gdp_of_region(df_list, region)
 
     return 0  
+
+
+
+
+# # ------------------ GENERAL STATISTICS ------------------
+# def sum_gdp_of_country_all_years(df_list, country):
+#     """Sum of GDP for a country across all years."""
+#     filtered = filter_by_country(df_list, country)
+#     return sum(x["Value"] for x in filtered)
+
+# def avg_gdp_of_country_all_years(df_list, country):
+#     """Average GDP for a country across all years."""
+#     filtered = filter_by_country(df_list, country)
+#     total = sum(x["Value"] for x in filtered)
+#     return total / len(filtered) if filtered else 0
+
+# def sum_avg_gdp_of_region_all_years(df_list, region):
+#     """Sum of average GDP of all countries in a region across all years."""
+#     filtered = filter_by_region(df_list, region)
+#     countries = set(x["Country Name"] for x in filtered)
+#     avg_list = list(map(lambda c: avg_gdp_of_country_all_years(df_list, c), countries))
+#     return sum(avg_list)
+
+# def avg_gdp_of_region_all_years(df_list, region):
+#     """Average GDP of region = sum of country averages / number of countries."""
+#     filtered = filter_by_region(df_list, region)
+#     countries = set(x["Country Name"] for x in filtered)
+#     total_sum = sum_avg_gdp_of_region_all_years(df_list, region)
+#     return total_sum / len(countries) if countries else 0
+
