@@ -347,9 +347,6 @@ def run_dashboard():
         borderwidth=1,
         borderpad=6,
 
-        # rotation (optional)
-        textangle=0,
-
         # opacity
         opacity=0.9
     )
