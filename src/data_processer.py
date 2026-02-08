@@ -74,28 +74,28 @@ def filter_data_by_config(df_list, config):
 
 
 
-def compute_statistics(df_list, config):
-    """
-    Compute GDP statistics based on config
-    - operation: 'sum' or 'average'
-    - target: region or country
-    """
-    operation = config.get("operation")
-    region = config.get("region")
-    country = config.get("country", None)
+# def compute_statistics(df_list, config):
+#     """
+#     Compute GDP statistics based on config
+#     - operation: 'sum' or 'average'
+#     - target: region or country
+#     """
+#     operation = config.get("operation")
+#     region = config.get("region")
+#     country = config.get("country", None)
 
-    if country:  # prioritize country if given
-        if operation == "sum":
-            return sum_gdp_of_country(df_list, country)
-        elif operation == "average":
-            return avg_gdp_of_country(df_list, country)
-    else:
-        if operation == "sum":
-            return sum_gdp_of_region(df_list, region)
-        elif operation == "average":
-            return avg_gdp_of_region(df_list, region)
+#     if country:  # prioritize country if given
+#         if operation == "sum":
+#             return sum_gdp_of_country(df_list, country)
+#         elif operation == "average":
+#             return avg_gdp_of_country(df_list, country)
+#     else:
+#         if operation == "sum":
+#             return sum_gdp_of_region(df_list, region)
+#         elif operation == "average":
+#             return avg_gdp_of_region(df_list, region)
 
-    return 0  
+#     return 0  
 
 
 
